@@ -8,11 +8,11 @@ class AdvertisementController {
         const page = parseInt(req.query.page) || 1;
 
         const skip = (page - 1) * limit;
-        
+
         try {
             const listAdvertisements = await advertisement.find({})
-            .limit(limit)
-            .skip(skip);
+                .limit(limit)
+                .skip(skip);
 
             const totalAdvertisements = await advertisement.countDocuments({});
             const totalPages = Math.ceil(totalAdvertisements / limit);
@@ -30,24 +30,92 @@ class AdvertisementController {
 
     static async searchAdvertisements(req, res) {
         try {
-            const { query } = req.query;
+            let { limit, page, search, state, color, brand, year, price } = req.query;
+
+            limit = parseInt(req.query.limit) || 10;
+            page = parseInt(req.query.page) || 1;
+
+            const skip = (page - 1) * limit;
 
             let filter = {};
-            if (query) {
-                filter = {
+            if (search) {
+
+                const searchTerms = search.split(' ').map(term => term.trim()).filter(term => term);
+
+                const regexConditions = searchTerms.map(term => ({
                     $or: [
-                        { brand: { $regex: query, $options: 'i' } },
-                        { model: { $regex: query, $options: 'i' } }
+                        { brand: { $regex: term, $options: 'i' } },
+                        { model: { $regex: term, $options: 'i' } },
+                        { year: { $regex: term, $options: 'i' } },
+                        { color: { $regex: term, $options: 'i' } },
                     ]
-                };
+                }));
+
+                filter.$and = regexConditions;
             }
 
-            const advertisements = await advertisement.find(filter).limit(10)
+            if (state) {
+                const states = state.split(',').map(term => term.trim()).filter(term => term);
+                const stateFilter = {
+                    $or: states.map(stateName => ({
+                        state: { $regex: new RegExp(stateName, 'i') }
+                    }))
+                };
+                filter.$and = filter.$and || [];
+                filter.$and.push(stateFilter);
+            }
+
+
+            if (color) {
+                const colors = color.split(',').map(term => term.trim()).filter(term => term);
+                const colorFilter = {
+                    $or: colors.map(colorName => ({
+                        color: { $regex: new RegExp(colorName, 'i') }
+                    }))
+                };
+                filter.$and = filter.$and || [];
+                filter.$and.push(colorFilter);
+            }
+
+
+            if (brand) {
+                const brands = brand.split(',').map(term => term.trim()).filter(term => term);
+                const brandFilter = {
+                    $or: brands.map(brandName => ({
+                        brand: { $regex: new RegExp(brandName, 'i') }
+                    }))
+                };
+                filter.$and = filter.$and || [];
+                filter.$and.push(brandFilter);
+            }
+
+            if (year) {
+                const yearRange = year.split('-').map(p => parseFloat(p));
+                if (yearRange.length === 2) {
+                    filter.year = { $gte: yearRange[0], $lte: yearRange[1] };
+                } else {
+                    filter.year = parseFloat(year);
+                }
+            }
+
+            if (price) {
+                const priceRange = price.split('-').map(p => parseFloat(p));
+                if (priceRange.length === 2) {
+                    filter.price = { $gte: priceRange[0], $lte: priceRange[1] };
+                } else {
+                    filter.price = parseFloat(price);
+                }
+            }
+
+            const advertisements = await advertisement.find(filter).limit(limit).skip(skip)
             const totalAdvertisements = await advertisement.countDocuments(filter);
+            const totalPages = Math.ceil(totalAdvertisements / limit);
 
             res.status(200).json({
                 advertisements,
-                totalAdvertisements
+                totalAdvertisements,
+                currentPage: page,
+                totalPages: totalPages
             });
         } catch (error) {
             res.status(500).json({ message: `${error.message} - falha na requisição` })
@@ -56,7 +124,7 @@ class AdvertisementController {
 
     static async listAdvertisementById(req, res) {
         try {
-            const id = req.params.id;
+            const { id } = req.query;
             const advertisementFound = await advertisement.findById(id);
             res.status(200).json(advertisementFound);
         } catch (erro) {
