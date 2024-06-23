@@ -1,4 +1,7 @@
 import advertisement from "../models/Advertisement.js";
+import filterAdsWidthASingleParameter from "./utils/filterAdsWithASingleParameter.js";
+import filterAdsWithIntervalValues from "./utils/filterAdsWithIntervalValues.js";
+import filterAdsWithMultipleParameters from "./utils/filterAdsWithMultipleParameters.js";
 
 class AdvertisementController {
 
@@ -30,7 +33,7 @@ class AdvertisementController {
 
     static async searchAdvertisements(req, res) {
         try {
-            let { limit, page, search, state, color, brand, year, price } = req.query;
+            let { limit, page, search, state, city, color, brand, year, price } = req.query;
 
             limit = parseInt(req.query.limit) || 10;
             page = parseInt(req.query.page) || 1;
@@ -54,58 +57,17 @@ class AdvertisementController {
                 filter.$and = regexConditions;
             }
 
-            if (state) {
-                const states = state.split(',').map(term => term.trim()).filter(term => term);
-                const stateFilter = {
-                    $or: states.map(stateName => ({
-                        state: { $regex: new RegExp(stateName, 'i') }
-                    }))
-                };
-                filter.$and = filter.$and || [];
-                filter.$and.push(stateFilter);
-            }
+            //Aqui filtramos com apenas um parametro, ex: estado: bahia
+            filterAdsWidthASingleParameter('state', state, filter);
+            filterAdsWidthASingleParameter('city', city, filter);
 
+            //Aqui filtramos com mais de um parametro, ex: cor: branco, azul e verde...
+            filterAdsWithMultipleParameters('color', color, filter);
+            filterAdsWithMultipleParameters('brand', brand, filter);
 
-            if (color) {
-                const colors = color.split(',').map(term => term.trim()).filter(term => term);
-                const colorFilter = {
-                    $or: colors.map(colorName => ({
-                        color: { $regex: new RegExp(colorName, 'i') }
-                    }))
-                };
-                filter.$and = filter.$and || [];
-                filter.$and.push(colorFilter);
-            }
-
-
-            if (brand) {
-                const brands = brand.split(',').map(term => term.trim()).filter(term => term);
-                const brandFilter = {
-                    $or: brands.map(brandName => ({
-                        brand: { $regex: new RegExp(brandName, 'i') }
-                    }))
-                };
-                filter.$and = filter.$and || [];
-                filter.$and.push(brandFilter);
-            }
-
-            if (year) {
-                const yearRange = year.split('-').map(p => parseFloat(p));
-                if (yearRange.length === 2) {
-                    filter.year = { $gte: yearRange[0], $lte: yearRange[1] };
-                } else {
-                    filter.year = parseFloat(year);
-                }
-            }
-
-            if (price) {
-                const priceRange = price.split('-').map(p => parseFloat(p));
-                if (priceRange.length === 2) {
-                    filter.price = { $gte: priceRange[0], $lte: priceRange[1] };
-                } else {
-                    filter.price = parseFloat(price);
-                }
-            }
+            //Aqui filtramos com intervalo de valores, ex: ano: 2010-2015
+            filterAdsWithIntervalValues('year', year, filter);
+            filterAdsWithIntervalValues('price', price, filter);
 
             const advertisements = await advertisement.find(filter).limit(limit).skip(skip)
             const totalAdvertisements = await advertisement.countDocuments(filter);
