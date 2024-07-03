@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    id: { type: mongoose.Schema.Types.ObjectId },
-    name: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String },
-    phoneNumber: { type: String },
-    advertisements: []
+    personalDataId: { type: mongoose.Schema.Types.ObjectId, ref: 'PersonalData' },
+    accessDataId: { type: mongoose.Schema.Types.ObjectId, ref: 'AccessData' },
+    advertisements: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Advertisement' }]
 }, { versionKey: false });
 
-const user = mongoose.model("users", userSchema);
+const User = mongoose.model("User", userSchema, "users");
 
-export default user;
+export default User;
