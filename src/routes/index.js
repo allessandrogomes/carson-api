@@ -1,5 +1,5 @@
 import express from "express";
-import users from "./usersRoutes.js";
+import users from "./userRoutes.js";
 import advertisements from "./advertisementsRoutes.js";
 import cors from 'cors';
 
