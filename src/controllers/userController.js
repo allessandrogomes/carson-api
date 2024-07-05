@@ -46,6 +46,19 @@ class UserController {
         }
     };
 
+    static async checkEmailExists(req, res) {
+        try {
+            const { email } = req.body;
+            const accessData = await AccessData.findOne({ email });
+            if (accessData) {
+                return res.status(200).json({ exists: true });
+            }
+            return res.status(200).json({ exists: false });
+        } catch (err) {
+            res.status(500).json({ error: "Erro interno do servidor", err });
+        }
+    }
+
     // static async listUserById(req, res) {
     //     try {
     //         const id = req.params.id;
