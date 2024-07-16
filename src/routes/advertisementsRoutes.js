@@ -13,7 +13,7 @@ routes.get("/advertisements/search", AdvertisementController.searchAdvertisement
 routes.post("/advertisement/register", AdvertisementController.registerAdvertisement);
 
 // Retorna o anúncio pelo _id
-// routes.get("/advertisement", AdvertisementController.listAdvertisementById);
+routes.get("/advertisement", AdvertisementController.listAdvertisementById);
 
 
 

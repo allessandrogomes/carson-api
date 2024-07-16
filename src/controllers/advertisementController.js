@@ -104,15 +104,15 @@ class AdvertisementController {
     };
 
 
-    // static async listAdvertisementById(req, res) {
-    //     try {
-    //         const { id } = req.query;
-    //         const advertisementFound = await advertisement.findById(id);
-    //         res.status(200).json(advertisementFound);
-    //     } catch (erro) {
-    //         res.status(500).json({ message: `${erro.message} - falha na requisição do anúncio` });
-    //     }
-    // };
+    static async listAdvertisementById(req, res) {
+        try {
+            const { id } = req.query;
+            const advertisementFound = await Advertisement.findById(id);
+            res.status(200).json(advertisementFound);
+        } catch (erro) {
+            res.status(500).json({ message: `${erro.message} - falha na requisição do anúncio` });
+        }
+    };
 
     // static async updateAdvertisement(req, res) {
     //     try {
