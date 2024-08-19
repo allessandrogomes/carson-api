@@ -1,9 +1,15 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "*": ["src/*"]
+    },
     "target": "es2022",
     "module": "ESNext",
     "moduleResolution": "node",
-    "lib": ["es2022"],
+    "lib": [
+      "es2022"
+    ],
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
@@ -17,9 +23,16 @@
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "esModuleInterop": true
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "esModuleInterop": true,
   },
-  "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

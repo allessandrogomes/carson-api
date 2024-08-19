@@ -1,6 +1,6 @@
 import express from 'express'
-import connectToDatabase from './config/dbConnect'
-import routes from './routes/index'
+import connectToDatabase from './config/dbConnect.js'
+import routes from './routes/index.js'
 
 const app = express()
 
