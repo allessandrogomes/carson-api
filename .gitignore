@@ -3,3 +3,4 @@ node_modules
 server.cert
 server.key
 dist
+.vercel

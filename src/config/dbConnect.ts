@@ -2,8 +2,8 @@ import mongoose from 'mongoose'
 
 async function connectToDatabase() {
   try {
-    if (process.env.DB_CONNECTION_STRING) {
-      mongoose.connect(process.env.DB_CONNECTION_STRING)
+    if (process.env.MONGODB_URI) {
+      mongoose.connect(process.env.MONGODB_URI)
       return mongoose.connection
     }
   } catch (error) {
